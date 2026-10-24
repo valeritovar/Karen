@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f8f3ef">
+    <meta name="theme-color" content="#fff8fc">
     <meta name="description" content="Karen Beauty. Tu belleza, tu esencia, tu estilo.">
     <title>Karen Beauty | Tu belleza, tu esencia, tu estilo</title>
     <link rel="stylesheet" href="assets/css/site.css">
@@ -49,12 +49,23 @@
                 <p class="hero__description">
                     Un espacio creado para celebrar aquello que te hace única.
                 </p>
-                <a class="button-link" href="#esencia">Conoce nuestra esencia</a>
+                <div class="hero__actions">
+                    <a class="button-link" href="#esencia">Conoce nuestra esencia</a>
+                    <a class="button-link button-link--secondary" href="catalogo.php">Explora el catálogo</a>
+                </div>
             </div>
             <div class="hero__art" aria-hidden="true">
                 <div class="hero__shape hero__shape--outer"></div>
                 <div class="hero__shape hero__shape--inner"></div>
                 <span class="hero__monogram">KB</span>
+                <span class="hero__beauty-item hero__beauty-item--lipstick">
+                    <span class="hero__beauty-item-cap"></span>
+                    <span class="hero__beauty-item-body"></span>
+                </span>
+                <span class="hero__beauty-item hero__beauty-item--compact">
+                    <span class="hero__beauty-item-center">KB</span>
+                </span>
+                <span class="hero__beauty-flower">✿</span>
             </div>
         </section>
 

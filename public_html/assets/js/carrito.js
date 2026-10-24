@@ -55,24 +55,6 @@
         return product.commercialPrice;
     };
 
-    const getWhatsAppPrice = (product) => {
-        const confirmedPrice = getConfirmedPrice(product);
-        if (confirmedPrice !== null) {
-            return { amount: confirmedPrice, isDemo: false };
-        }
-
-        if (
-            product
-            && product.isDemo === true
-            && Number.isFinite(product.price)
-            && product.price >= 0
-        ) {
-            return { amount: product.price, isDemo: true };
-        }
-
-        return null;
-    };
-
     const readCart = () => {
         try {
             const storedValue = window.sessionStorage.getItem(STORAGE_KEY);
@@ -193,59 +175,35 @@
     };
 
     const createWhatsAppMessage = (lines) => {
-        const isDemoOrder = lines.some(({ product }) => product.isDemo === true);
         const messageLines = [
-            isDemoOrder
-                ? "PEDIDO DE PRUEBA — precios demostrativos no comerciales."
-                : "Hola, Karen Beauty. Quiero realizar el siguiente pedido:",
-            ...(isDemoOrder ? ["Este mensaje y sus valores son solo para pruebas; no representan precios comerciales ni un pedido pagadero."] : []),
-            "",
-            isDemoOrder
-                ? "Hola, Karen Beauty. Quiero probar el siguiente pedido:"
-                : null,
+            "Hola, Karen Beauty. Quiero consultar por los siguientes productos:",
             ""
-        ].filter((line) => line !== null);
-        const shippingCost = 5000;
+        ];
         let allOrderDetailsAvailable = true;
         let productsSubtotal = 0;
 
         lines.forEach(({ product, quantity }) => {
-            const price = getWhatsAppPrice(product);
-            const brandIsAvailable = (product.isDemo === false || product.isDemo === true)
-                && typeof product.brand === "string"
-                && product.brand.trim() !== "";
-
-            if (!brandIsAvailable || price === null) {
+            const price = getConfirmedPrice(product);
+            if (price === null) {
                 allOrderDetailsAvailable = false;
-            }
-            if (price !== null) {
-                productsSubtotal += price.amount * quantity;
+            } else {
+                productsSubtotal += price * quantity;
             }
 
-            const brand = brandIsAvailable
-                ? `${product.brand.trim()}${product.isDemo === true ? " (demostración)" : ""}`
-                : "Pendiente de confirmar";
-            const unitPrice = price === null
-                ? "Pendiente de confirmar"
-                : `${formatWhatsAppAmount(price.amount)}${price.isDemo ? " (demostrativo, no comercial)" : ""}`;
             messageLines.push(
-                `• ${product.name} — Marca: ${brand} — Cantidad: ${quantity} — Precio unitario: ${unitPrice}`
+                `• ${product.name} — Cantidad: ${quantity} — Precio unitario: ${price === null ? "Por confirmar" : formatWhatsAppAmount(price)}`
             );
         });
 
         messageLines.push("");
         if (allOrderDetailsAvailable && lines.length > 0) {
-            messageLines.push(`${isDemoOrder ? "Subtotal demostrativo (no comercial)" : "Subtotal productos"}: ${formatWhatsAppAmount(productsSubtotal)}`);
-            messageLines.push(`Envío: ${formatWhatsAppAmount(shippingCost)}`);
-            messageLines.push(
-                `${isDemoOrder ? "TOTAL DEMOSTRATIVO (NO PAGADERO)" : "TOTAL A PAGAR"}: ${formatWhatsAppAmount(productsSubtotal + shippingCost)}`
-            );
+            messageLines.push(`Subtotal de productos: ${formatWhatsAppAmount(productsSubtotal)}`);
+            messageLines.push("Envío: Por confirmar");
+            messageLines.push("Total: Por confirmar");
         } else {
-            messageLines.push(`${isDemoOrder ? "Subtotal demostrativo" : "Subtotal productos"}: Pendiente de confirmar`);
-            messageLines.push(`Envío: ${formatWhatsAppAmount(shippingCost)}`);
-            messageLines.push(
-                `${isDemoOrder ? "TOTAL DEMOSTRATIVO (NO PAGADERO)" : "TOTAL A PAGAR"}: Pendiente de confirmar precios y datos comerciales`
-            );
+            messageLines.push("Subtotal: Por confirmar");
+            messageLines.push("Envío: Por confirmar");
+            messageLines.push("Total: Por confirmar");
         }
 
         messageLines.push("");
@@ -291,23 +249,13 @@
             const price = getConfirmedPrice(product);
             return sum + price * quantity;
         }, 0);
-        const demoPricedLines = lines.filter(({ product }) => (
-            product.isDemo === true
-            && Number.isFinite(product.price)
-            && product.price >= 0
-        ));
-        const demoSubtotal = demoPricedLines.reduce(
-            (sum, { product, quantity }) => sum + product.price * quantity,
-            0
-        );
         const message = createWhatsAppMessage(lines);
         const whatsappUrl = getWhatsAppUrl(message);
 
         cartContent.innerHTML = `
             ${hasNonCommercialProducts ? `
-                <p class="cart-demo-warning" role="note">
-                    El carrito contiene productos de demostración o sin clasificación comercial confirmada.
-                    Se identifican como demostrativos en la consulta y sus valores ficticios no se usan como precios comerciales.
+                <p class="cart-notice" role="note">
+                    Algunos productos y precios requieren confirmación antes de realizar el pedido.
                 </p>
             ` : ""}
             <div class="cart-layout">
@@ -329,11 +277,6 @@
                                 ` : ""}
                                 <div class="cart-item__details">
                                     <h2 class="cart-item__name">${escapeHtml(product.name)}</h2>
-                                    ${product.isDemo === true ? `
-                                        <p class="cart-item__demo">Producto ficticio de demostración; no es un artículo comercial.</p>
-                                    ` : product.isDemo !== false ? `
-                                        <p class="cart-item__demo">Producto pendiente de validar como comercial.</p>
-                                    ` : ""}
                                     <p class="cart-item__price">
                                         ${price === null
                                             ? "Precio comercial pendiente de confirmar"
@@ -377,18 +320,9 @@
                             ? `Total: ${formatAmount(confirmedSubtotal)}`
                             : "Total comercial pendiente de confirmar"}
                     </p>
-                    ${demoPricedLines.length > 0 ? `
-                        <p class="cart-summary__notice" role="note">
-                            <strong>Suma demostrativa (no pagadera): ${formatAmount(demoSubtotal)}</strong><br>
-                            Calculada con valores ficticios del catálogo. No es un precio comercial ni un valor a pagar.
-                            ${demoPricedLines.length < lines.filter(({ product }) => product.isDemo === true).length
-                                ? " Se excluyen productos sin valor demostrativo válido."
-                                : ""}
-                        </p>
-                    ` : ""}
                     ${hasNonCommercialProducts ? `
                         <p class="cart-summary__notice">
-                            Los productos demostrativos o no identificados como comerciales no se incluyen en pedidos.
+                            Los precios de estos productos deben confirmarse antes de realizar el pedido.
                         </p>
                     ` : ""}
                     ${hasPendingPrices && !hasNonCommercialProducts ? `
@@ -399,12 +333,12 @@
                     <div class="cart-whatsapp">
                         <h3>Preparar mensaje por WhatsApp</h3>
                         ${hasNonCommercialProducts ? `
-                            <p>Esta consulta de prueba identifica claramente los productos demostrativos o pendientes de validar.</p>
+                            <p>Los detalles del pedido se confirmarán antes de finalizar la compra.</p>
                         ` : ""}
                         <p class="cart-whatsapp__preview">${escapeHtml(message).replace(/\n/g, "<br>")}</p>
                         ${whatsappUrl ? `
                             <a class="cart-whatsapp__button" href="${escapeHtml(whatsappUrl)}" target="_blank" rel="noopener noreferrer">
-                                Enviar pedido por WhatsApp
+                                Consultar por WhatsApp
                             </a>
                         ` : `
                             <p class="cart-whatsapp__notice">

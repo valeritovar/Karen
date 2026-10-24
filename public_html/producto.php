@@ -9,8 +9,8 @@ if (!is_string($productId)) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f8f3ef">
-    <meta name="description" content="Detalle de producto de demostración de Karen Beauty.">
+    <meta name="theme-color" content="#fff8fc">
+    <meta name="description" content="Detalle de producto de Karen Beauty.">
     <title>Detalle de producto | Karen Beauty</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/catalogo.css">
@@ -55,7 +55,7 @@ if (!is_string($productId)) {
         data-product-id="<?= htmlspecialchars($productId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
     >
         <p class="catalog__status" id="product-status" role="status" aria-live="polite">
-            Cargando detalle de demostración…
+            Cargando producto…
         </p>
         <div id="product-detail-content"></div>
     </main>

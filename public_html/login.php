@@ -140,7 +140,7 @@ $escapeHtml = static fn (string $value): string => htmlspecialchars(
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f8f3ef">
+    <meta name="theme-color" content="#fff8fc">
     <meta name="robots" content="noindex, nofollow">
     <title>Acceso administrativo | Karen Beauty</title>
     <link rel="stylesheet" href="assets/css/site.css">

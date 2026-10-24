@@ -13,13 +13,18 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => {
     return entities[character];
 });
 
-const formatDemoPrice = (price) => new Intl.NumberFormat("es", {
-    maximumFractionDigits: 0
-}).format(price);
+const beautyCategoryIcons = {
+    maquillaje: "💄",
+    "cuidado-facial": "🌸",
+    "cuidado-capilar": "🧴",
+    "perfumeria-cuerpo": "✨",
+    "unas-accesorios": "💅"
+};
 
-const createDemoArt = (label, extraClass = "") => `
-    <div class="demo-art ${extraClass}" role="img" aria-label="Imagen ficticia de demostración: ${escapeHtml(label)}">
+const createDemoArt = (label, category = "", extraClass = "") => `
+    <div class="demo-art ${extraClass} demo-art--${category}" role="img" aria-label="Ilustración de ${escapeHtml(label)}">
         <span class="demo-art__monogram" aria-hidden="true">KB</span>
+        <span class="demo-art__beauty-icon" aria-hidden="true">${beautyCategoryIcons[category] || "✦"}</span>
     </div>
 `;
 
@@ -252,17 +257,15 @@ if (catalogRoot) {
     const searchInput = document.querySelector("#product-search");
     const categoryFilter = document.querySelector("#category-filter");
     const availabilityFilter = document.querySelector("#availability-filter");
-    const priceSort = document.querySelector("#price-sort");
     const status = document.querySelector("#catalog-status");
 
     if (!Array.isArray(catalogProducts)) {
-        status.textContent = "No fue posible cargar los datos de demostración del catálogo.";
+        status.textContent = "No fue posible cargar el catálogo.";
     } else {
         const renderCatalog = () => {
             const searchTerm = searchInput.value.trim().toLocaleLowerCase();
             const selectedCategory = categoryFilter.value;
             const selectedAvailability = availabilityFilter.value;
-            const selectedSort = priceSort.value;
 
             let visibleProducts = catalogProducts.filter((product) => {
                 const matchesName = product.name.toLocaleLowerCase().includes(searchTerm);
@@ -274,21 +277,14 @@ if (catalogRoot) {
                 return matchesName && matchesCategory && matchesAvailability;
             });
 
-            if (selectedSort === "price-asc") {
-                visibleProducts = [...visibleProducts].sort((a, b) => a.price - b.price);
-            } else if (selectedSort === "price-desc") {
-                visibleProducts = [...visibleProducts].sort((a, b) => b.price - a.price);
-            }
-
             status.textContent = visibleProducts.length === 1
-                ? "1 producto ficticio de demostración."
-                : `${visibleProducts.length} productos ficticios de demostración.`;
+                ? "1 producto."
+                : `${visibleProducts.length} productos.`;
 
             if (visibleProducts.length === 0) {
                 catalogRoot.innerHTML = `
                     <div class="catalog-empty">
                         <p>No encontramos productos con esos filtros.</p>
-                        <p>Los resultados mostrados son únicamente demostrativos.</p>
                     </div>
                 `;
                 return;
@@ -297,19 +293,15 @@ if (catalogRoot) {
             catalogRoot.innerHTML = visibleProducts.map((product) => `
                 <article class="product-card">
                     <a class="product-card__link" href="producto.php?id=${encodeURIComponent(product.id)}">
-                        ${createDemoArt(product.name)}
+                        ${createDemoArt(product.name, product.category)}
                         <div class="product-card__body">
                             <p class="product-card__category">${escapeHtml(product.categoryLabel)}</p>
                             <h2 class="product-card__title">${escapeHtml(product.name)}</h2>
-                            <p class="product-card__meta">
-                                <span>Marca ficticia: ${escapeHtml(product.brand)}</span>
-                                <span>Referencia demo: ${escapeHtml(product.reference)}</span>
-                            </p>
                             <p class="product-card__price">
-                                Valor de demostración: ${formatDemoPrice(product.price)}
+                                Precio por confirmar
                             </p>
                             <p class="product-card__availability" data-available="${product.available}">
-                                Disponibilidad demo: ${product.available ? "Disponible" : "No disponible"}
+                                ${product.available ? "Disponible" : "No disponible"}
                             </p>
                         </div>
                     </a>
@@ -337,7 +329,7 @@ if (detailRoot) {
     const content = document.querySelector("#product-detail-content");
 
     if (!Array.isArray(catalogProducts)) {
-        status.textContent = "No fue posible cargar los datos de demostración del producto.";
+        status.textContent = "No fue posible cargar el producto.";
     } else {
         const product = catalogProducts.find((item) => item.id === detailRoot.dataset.productId);
 
@@ -346,12 +338,11 @@ if (detailRoot) {
             content.innerHTML = `
                 <div class="product-not-found">
                     <h1>Producto no encontrado</h1>
-                    <p>Esta ficha solo contiene productos ficticios de demostración.</p>
                     <a class="button-link" href="catalogo.php">Volver al catálogo</a>
                 </div>
             `;
         } else {
-            status.textContent = "Ficha de producto ficticia de demostración.";
+            status.textContent = "";
 
             const galleryMarkup = Array.isArray(product.photos) && product.photos.length > 0
                 ? product.photos.map((photo) => `
@@ -362,23 +353,21 @@ if (detailRoot) {
                         loading="lazy"
                     >
                 `).join("")
-                : createDemoArt(product.name);
+                : createDemoArt(product.name, product.category);
 
             content.innerHTML = `
                 <article class="product-detail">
                     <a class="product-detail__back" href="catalogo.php">← Volver al catálogo</a>
                     <div class="product-detail__layout">
-                        ${createDemoArt(product.name, "product-detail__art")}
+                        ${createDemoArt(product.name, product.category, "product-detail__art")}
                         <div class="product-detail__information">
                             <p class="product-card__category">${escapeHtml(product.categoryLabel)}</p>
                             <h1 class="product-detail__title">${escapeHtml(product.name)}</h1>
-                            <p class="product-detail__brand">Marca ficticia: ${escapeHtml(product.brand)}</p>
-                            <p class="product-detail__reference">Referencia demo: ${escapeHtml(product.reference)}</p>
                             <p class="product-detail__price">
-                                Valor de demostración: ${formatDemoPrice(product.price)}
+                                Precio por confirmar
                             </p>
                             <p class="product-detail__availability">
-                                Disponibilidad demo: ${product.available ? "Disponible" : "No disponible"}
+                                ${product.available ? "Disponible" : "No disponible"}
                             </p>
                             <p class="product-detail__description">${escapeHtml(product.description)}</p>
                             <section class="product-detail__section">
@@ -392,8 +381,8 @@ if (detailRoot) {
                     </div>
                     ${create360ViewerMarkup(product)}
                     <section class="product-detail__section" aria-labelledby="gallery-title">
-                        <h2 id="gallery-title">Galería de demostración</h2>
-                        <p>Las imágenes visibles son recursos gráficos ficticios, no fotografías del producto.</p>
+                        <h2 id="gallery-title">Galería</h2>
+                        <p>Explora las imágenes disponibles del producto.</p>
                         <div class="product-detail__gallery">${galleryMarkup}</div>
                     </section>
                 </article>

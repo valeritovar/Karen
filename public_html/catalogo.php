@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f8f3ef">
-    <meta name="description" content="Explora el catálogo de demostración de Karen Beauty.">
+    <meta name="theme-color" content="#fff8fc">
+    <meta name="description" content="Explora el catálogo de Karen Beauty.">
     <title>Catálogo | Karen Beauty</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/catalogo.css">
@@ -48,14 +48,9 @@
             <p class="eyebrow">Karen Beauty</p>
             <h1 id="catalog-title">Nuestro catálogo</h1>
             <p>Explora las categorías y encuentra inspiración para tu estilo.</p>
-            <p class="demo-notice" role="note">
-                Demostración: todos los productos, marcas, referencias, disponibilidades y valores
-                de esta página son ficticios. Los valores no tienen moneda definida y no corresponden
-                a productos reales.
-            </p>
         </section>
 
-        <section class="catalog" aria-label="Productos de demostración">
+        <section class="catalog" aria-label="Productos">
             <form class="catalog-filters" id="catalog-filters">
                 <div class="catalog-filters__field catalog-filters__field--search">
                     <label for="product-search">Buscar por nombre</label>
@@ -86,15 +81,6 @@
                         <option value="">Todas</option>
                         <option value="available">Disponible</option>
                         <option value="unavailable">No disponible</option>
-                    </select>
-                </div>
-
-                <div class="catalog-filters__field">
-                    <label for="price-sort">Ordenar por valor</label>
-                    <select id="price-sort" name="sort">
-                        <option value="">Orden original</option>
-                        <option value="price-asc">Menor a mayor</option>
-                        <option value="price-desc">Mayor a menor</option>
                     </select>
                 </div>
 

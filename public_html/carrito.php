@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f8f3ef">
-    <meta name="description" content="Revisa tu carrito de demostración de Karen Beauty.">
+    <meta name="theme-color" content="#fff8fc">
+    <meta name="description" content="Revisa tu carrito de Karen Beauty.">
     <title>Carrito | Karen Beauty</title>
     <link rel="stylesheet" href="assets/css/site.css">
     <link rel="stylesheet" href="assets/css/carrito.css">
@@ -46,9 +46,6 @@
             <p class="eyebrow">Karen Beauty</p>
             <h1>Tu carrito</h1>
             <p>Revisa los artículos antes de preparar tu mensaje.</p>
-            <p class="cart-page__notice">
-                Este carrito es demostrativo: no reserva productos ni confirma pedidos.
-            </p>
         </header>
         <p class="cart-status" data-cart-status role="status" aria-live="polite"></p>
         <div data-cart-content></div>
